@@ -6,13 +6,15 @@ public class ContainerProblem {
 
 	static int steps = -1;
 	
+	//UTILITY FUNC: Computes gcd of container values.
 	static int gcd(int a,int b){
 	    if(b==0)
 	        return a;
 	    return gcd(b,a%b);
 	}
 	
-	static int checkPossibility(int a, int b, int target){
+	//UTILITY FUNC: Computes possiblity of solving w/ given values.
+	/*static int checkPossibility(int a, int b, int target){
 		
 		if(a < 1 || b < 1)
 			return -1;
@@ -22,15 +24,19 @@ public class ContainerProblem {
 		
 		return (target % gcd(a,b));
 	}
-	
+	*/
 	static int checkPossibility(Container A, Container B, int target){
 		
-		if(target > A.getCapacity() || target > B.getCapacity())
+		if(A.getCapacity() < 1 || B.getCapacity() < 1)
+			return -1;
+		
+		if(target > A.getCapacity() && target > B.getCapacity())
 			return -1;
 		
 		return (target % gcd(A.getCapacity(),B.getCapacity()));
 	}
 	
+	//UTILTY FUNCS: Overloaded funcs for printing to terminal.
 	static void printLog(String columnOne, String columnTwo, String columnThree){
 		System.out.println(columnOne+"        "+columnTwo+"     "+columnThree);
 	}
@@ -39,63 +45,18 @@ public class ContainerProblem {
 		System.out.println(steps+"            "+A.getFilled()+"        "+B.getFilled());
 	}
 	
-/*public static void computeSteps(int containerA, int containerB, int target){
-		
-		int steps = -1;
-		//Buckets.
-		int capA = Math.max(containerA, containerB);
-		int capB = Math.min(containerA, containerB);
-		int A = 0;
-		int B = 0;
-		
-		if(checkPossibility(containerA, containerB, target) > 0){
-			System.out.println("Soln. not possible");
-			return;
-		}
-		
-		System.out.println("Step     A     B");
-		System.out.println("----     -     -");
-		System.out.println(++steps+"        "+A+"     "+B);
-		
-		if(target == containerA){		
-			A = containerA;
-			System.out.println(++steps+"        "+A+"     "+B);
-			return;
-		}
-		if(target == containerB){	
-			B = containerB;
-			System.out.println(++steps+"        "+A+"     "+B);
-			return;
-		}
-		
-		while(A != target && B != target && steps <= 100000){
-			
-			if(A == 0){
-				A = capA;
-				System.out.println(++steps+"        "+A+"     "+B);
-			}else if(B == capB){
-				
-				B = 0;
-				System.out.println(++steps+"        "+A+"     "+B);				
-			}else{
-				int leftover = Math.min(capB - B, A);
-				B = B + leftover;
-				A = A - leftover;
-				System.out.println(++steps+"        "+A+"     "+B);
-			}
-		}
-		
-
-	}
-*/
 	
+	/*
+	 * A more efficient greedy technique algorithm to compute steps, rather than
+	 * generating all values through BFS
+	 */
 	public static void computeSteps(int containerA, int containerB, int target){
 		
 		
 		Container A = new Container("A", Math.max(containerA, containerB));
 		Container B = new Container("B", Math.min(containerA, containerB));
 		
-		if(checkPossibility(containerA, containerB, target) < 0){
+		if(checkPossibility(A, B, target) < 0){
 			System.out.println("Soln. not possible");
 			return;
 		}
@@ -131,23 +92,12 @@ public class ContainerProblem {
 				printLog(++steps, A, B);
 			}
 		}
+		steps = -1;
 
 	}
 	
-	public static void main(String[] args){				
-			
-			computeSteps(3, 5, 4);
-			
-			Container A = new Container("A", 3);
-			Container B = new Container("B", 5);
-			
-			LinkedList<State> c = getPossibleMoves(new State(A, B));
-			System.out.println(c.size());
-			System.out.println(c.remove().A.getFilled());
-			bfsSearch(new State(A, B), 4);
-	}
 	
-
+	//HELPER FUNC: Utility for BFS to find next possible states.
 	public static LinkedList<State> getPossibleMoves(State state){
 		
 		LinkedList<State> children = new LinkedList();
@@ -202,45 +152,13 @@ public class ContainerProblem {
 		
 		 
 	}
-	
-	/*public void bfs(String startNode){
-	
-	Queue<Node> queue = new LinkedList();
-	
-	//Map<String, Boolean> visited = new HashMap<String, Boolean>();
-	Node[] previous = new Node[tieList.size()+1];
-	Node root = getNodeValue(startNode);
-	root.depth = 0;
-	queue.add(root);
-	previous[root.priority] = null;
-	
-	tieList.get(root.priority).visited = true;   
-	tieList.get(root.priority).cost = 0;
-	//System.out.println(root.name+","+ root.depth +","+root.cost);
-	logWrite.add(new Log(root.name, root.depth, root.cost));
-	while(!queue.isEmpty()) {
-		Node node = (Node)queue.remove();
-		Node child=null;
-		
-		while((child=getUnvisitedChildrenNode(node))!=null) {
-			tieList.get(child.priority).visited = true;   
-			tieList.get(child.priority).cost = node.cost + getCost(node, child);
-			child.depth = node.depth + 1;
-			//System.out.println(child.name+","+ child.depth +","+child.cost);
-			logWrite.add(new Log(child.name, child.depth, child.cost));
-			previous[child.priority] = node;
-			queue.add(child);
-		
-		}
-	}
-	printPath(previous, getNodeValue(goalNode).priority);
-	generateOutputFile(generatedOutputPath);
-	
-	// Reset visited = false.
-	//clearNodes();
-}
-*/
-	
+
+	/*
+	 * Breadth-First Search Algorithm: A way to generate all possible states the system can take.
+	 * It stops when the first soln. is found.
+	 * 
+	 * Since it is BFS, it will automatically find the best possible soln, anyway.
+	 */
 	public static void bfsSearch(State state, int target){
 		
 		Queue<State> queue = new LinkedList();
@@ -257,7 +175,7 @@ public class ContainerProblem {
 			
 			while(!children.isEmpty()){
 				child = children.remove();
-				System.out.println("BFS :"+child.A.getFilled() +"    "+child.B.getFilled());
+				//System.out.println("BFS :"+child.A.getFilled() +"    "+child.B.getFilled());
 				if(child.A.getFilled() == target || child.B.getFilled() == target){
 					flag = true;
 					break;
@@ -269,4 +187,20 @@ public class ContainerProblem {
 		}
 		System.out.println(state.step);
 	}
+	
+	
+	public static void main(String[] args){				
+		
+		computeSteps(3, 5, 4);
+		
+		System.out.println();
+		
+		computeSteps(5, 33, 20);
+		
+		Container A = new Container("A", 3);
+		Container B = new Container("B", 5);
+				
+		//bfsSearch(new State(A, B), 4);
+}
+
 }
